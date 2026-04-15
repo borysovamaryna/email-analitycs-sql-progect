@@ -1,0 +1,133 @@
+--- знаходимо інформацію по аккаунтам
+
+
+WITH account_info AS (
+  SELECT
+    s.date,
+    country,
+    send_interval,
+    is_verified,
+    is_unsubscribed,
+    COUNT(DISTINCT a.id) AS account_cnt
+  FROM `DA.account` a
+  JOIN `DA.account_session` acs ON a.id = acs.account_id
+  JOIN `DA.session` s ON acs.ga_session_id = s.ga_session_id
+  JOIN `DA.session_params` sp ON s.ga_session_id = sp.ga_session_id
+  GROUP BY
+    s.date, country, send_interval, is_verified, is_unsubscribed
+),
+
+
+
+
+-----знаходимо інформацію по повідомленням
+messages_info AS (
+  SELECT
+    DATE_ADD(s.date, INTERVAL es.sent_date DAY) AS date,
+    country,
+    send_interval,
+    is_verified,
+    is_unsubscribed,
+    COUNT(DISTINCT es.id_message) AS sent_msg,
+    COUNT(DISTINCT eo.id_message) AS open_msg,
+    COUNT(DISTINCT ev.id_message) AS visit_msg
+  FROM `DA.email_sent` es
+  LEFT JOIN `DA.email_open` eo ON es.id_message = eo.id_message
+  LEFT JOIN `DA.email_visit` ev ON es.id_message = ev.id_message
+  JOIN `DA.account_session` acs ON es.id_account = acs.account_id
+  join `DA.account` ac   on es.id_account = ac.id
+  JOIN `DA.session` s ON s.ga_session_id = acs.ga_session_id
+  JOIN `DA.session_params` sp ON s.ga_session_id = sp.ga_session_id
+  GROUP BY
+    date, country, send_interval, is_verified, is_unsubscribed
+),
+
+
+---обєднуємо 2 попередні CTE
+final_info AS (
+  SELECT
+    date,
+    country,
+    send_interval,
+    is_verified,
+    is_unsubscribed,
+    account_cnt,
+    0 AS sent_msg,
+    0 AS open_msg,
+    0 AS visit_msg
+  FROM account_info
+
+
+  UNION ALL
+
+
+  SELECT
+    date,
+    country,
+    send_interval,
+    is_verified,
+    is_unsubscribed,
+    0 AS account_cnt,
+    sent_msg,
+    open_msg,
+    visit_msg
+  FROM messages_info
+),
+
+
+---знаходимо загальні значення по країнам
+country_totals AS (
+  SELECT
+    country,
+    SUM(account_cnt) AS total_country_account_cnt,
+    SUM(sent_msg) AS total_country_sent_cnt
+  FROM final_info
+  GROUP BY country
+),
+
+
+---розраховуємо ранки
+country_ranks AS (
+  SELECT
+    country,
+    total_country_account_cnt,
+    total_country_sent_cnt,
+    DENSE_RANK() OVER (
+      ORDER BY total_country_account_cnt DESC
+    ) AS rank_total_country_account_cnt,
+    DENSE_RANK() OVER (
+      ORDER BY total_country_sent_cnt DESC
+    ) AS rank_total_country_sent_cnt
+  FROM country_totals
+)
+
+
+---виводимо фінальну інформацію, згідно завдання
+SELECT
+  f.date,
+  f.country,
+  f.send_interval,
+  f.is_verified,
+  f.is_unsubscribed,
+  SUM(f.account_cnt) AS account_cnt,
+  SUM(f.sent_msg) AS sent_msg,
+  SUM(f.open_msg) AS open_msg,
+  SUM(f.visit_msg) AS visit_msg,
+  r.total_country_account_cnt,
+  r.total_country_sent_cnt,
+  r.rank_total_country_account_cnt,
+  r.rank_total_country_sent_cnt
+FROM final_info f
+LEFT JOIN country_ranks r
+  ON f.country = r.country
+GROUP BY
+  f.date,
+  f.country,
+  f.send_interval,
+  f.is_verified,
+  f.is_unsubscribed,
+  r.total_country_account_cnt,
+  r.total_country_sent_cnt,
+  r.rank_total_country_account_cnt,
+  r.rank_total_country_sent_cnt
+HAVING r.rank_total_country_account_cnt <=10 OR  r.rank_total_country_sent_cnt<=10
