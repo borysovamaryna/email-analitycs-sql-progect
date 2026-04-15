@@ -53,7 +53,7 @@
 2. Виконати queries.sql
 
 ## Представлення результатів в Looker Studio
-![Looker](images/dashboard.png)
+![Looker](looker-studio-visual)
 
 
 ## Автор
