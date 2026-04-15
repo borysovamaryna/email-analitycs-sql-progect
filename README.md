@@ -1,4 +1,4 @@
-# account-and-messages-by-coutry
+# Email Analytics SQL Progect
 
 ## Опис
 Цей проєкт містить SQL-запит для аналізу:
