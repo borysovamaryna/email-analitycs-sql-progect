@@ -1,5 +1,4 @@
---- знаходимо інформацію по аккаунтам
-
+--- find account info
 
 WITH account_info AS (
   SELECT
@@ -17,10 +16,8 @@ WITH account_info AS (
     s.date, country, send_interval, is_verified, is_unsubscribed
 ),
 
+-----find messages info
 
-
-
------знаходимо інформацію по повідомленням
 messages_info AS (
   SELECT
     DATE_ADD(s.date, INTERVAL es.sent_date DAY) AS date,
@@ -42,8 +39,8 @@ messages_info AS (
     date, country, send_interval, is_verified, is_unsubscribed
 ),
 
+---union 2 CTE
 
----обєднуємо 2 попередні CTE
 final_info AS (
   SELECT
     date,
@@ -57,9 +54,7 @@ final_info AS (
     0 AS visit_msg
   FROM account_info
 
-
   UNION ALL
-
 
   SELECT
     date,
@@ -75,7 +70,8 @@ final_info AS (
 ),
 
 
----знаходимо загальні значення по країнам
+---find general data by country
+
 country_totals AS (
   SELECT
     country,
@@ -85,8 +81,8 @@ country_totals AS (
   GROUP BY country
 ),
 
+---calculate ranks
 
----розраховуємо ранки
 country_ranks AS (
   SELECT
     country,
@@ -101,8 +97,8 @@ country_ranks AS (
   FROM country_totals
 )
 
+---final info 
 
----виводимо фінальну інформацію, згідно завдання
 SELECT
   f.date,
   f.country,
