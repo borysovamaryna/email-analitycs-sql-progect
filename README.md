@@ -1,60 +1,73 @@
-# Email Analytics SQL Progect
+#  Email Analytics SQL Project
 
-## Опис
-Цей проєкт містить SQL-запит для аналізу:
-- акаунтів користувачів
-- email-розсилок
-- взаємодії з листами (відкриття, переходи)
+##  Description
 
-##  Що реалізовано
+This project contains a SQL query for analyzing:
 
-У запиті:
-- використано CTE (WITH)
-- об’єднано дані з кількох таблиць
-- підраховано:
-  - кількість акаунтів
-  - кількість відправлених листів
-  - відкриття листів
-  - переходи
-- розраховано агрегати по країнах
-- побудовано ранжування (DENSE_RANK)
+- user accounts  
+- email campaigns  
+- email interactions (opens and clicks)  
 
-## Структура запиту
+The goal is to understand user engagement and email performance across countries and time periods.
 
-1. **account_info**
-   - інформація по акаунтах
 
-2. **messages_info**
-   - інформація по email-активності
+##  What was implemented
 
-3. **final_info**
-   - об’єднання даних
+The query includes:
 
-4. **country_totals**
-   - агрегати по країнах
+- use of CTEs (`WITH` statements)  
+- joining data from multiple tables  
+- calculation of key metrics:
+  - number of user accounts  
+  - number of sent emails  
+  - email opens  
+  - email clicks  
+- aggregation of results by country  
+- ranking countries using `DENSE_RANK`  
 
-5. **country_ranks**
-   - ранжування країн
 
-6. **Final SELECT**
-   - фінальна аналітика
+##  Query structure
 
-## Технології
-- SQL (BigQuery / стандарт SQL)
+### `account_info`
+User account-level information.
 
-## Результат
-Отримано:
-- топ-10 країн за кількістю акаунтів
-- топ-10 країн за кількістю відправлених повідомлень
-- детальна аналітика по датах і параметрах користувачів
+### `messages_info`
+Email activity data (sent emails, opens, clicks).
 
-## Як використовувати
-1. Підключитись до бази даних
-2. Виконати queries.sql
+### `final_info`
+Combined dataset with account and email activity data.
 
-## Представлення результатів в Looker Studio
+### `country_totals`
+Aggregated metrics grouped by country.
+
+### `country_ranks`
+Ranking of countries based on key performance metrics.
+
+### `Final SELECT`
+Final analytical output used for reporting and insights.
+
+
+##  Technologies
+
+- SQL (BigQuery / standard SQL)
+
+
+##  Results
+
+The analysis provides:
+
+- Top 10 countries by number of user accounts  
+- Top 10 countries by number of sent emails  
+- Detailed breakdown of user engagement by date and key metrics  
+
+
+##  How to use
+
+1. Connect to the database  
+2. Run `queries.sql`  
+3. Use the output for email performance and user engagement analysis  
+
+## Results in Looker Studio
 ![Looker](looker-studio-visual)
 
 
-## Автор
-Марина Борисова
